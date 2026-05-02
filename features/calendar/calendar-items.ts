@@ -6,6 +6,8 @@ export type CalendarItemType =
   | "expense"
   | "income";
 
+export type CalendarHolidayKind = "national" | "optional" | "municipal";
+
 export type CalendarItemSourceType =
   | "birthday"
   | "holiday"
@@ -23,6 +25,7 @@ export type CalendarItem = {
   sourceId: string;
   sourceType: CalendarItemSourceType;
   type: CalendarItemType;
+  holidayKind?: CalendarHolidayKind | null;
   date: Date;
   dateKey: string;
   title: string;
@@ -43,6 +46,7 @@ export type HolidayRecord = {
   id: string;
   name: string;
   date: Date;
+  kind: CalendarHolidayKind;
   isRecurringYear: boolean;
   notes: string | null;
 };
@@ -74,7 +78,10 @@ export function buildMonthCalendarItems({
   validateMonthInput({ year, month });
 
   const monthIndex = month - 1;
-  const { start: monthStart, end: monthEnd } = getUtcMonthRange(year, monthIndex);
+  const { start: monthStart, end: monthEnd } = getUtcMonthRange(
+    year,
+    monthIndex,
+  );
 
   const items = [
     ...birthdays
@@ -116,6 +123,7 @@ export function buildMonthCalendarItems({
           sourceId: holiday.id,
           sourceType: "holiday",
           type: "holiday",
+          holidayKind: holiday.kind,
           date: occurrenceDate,
           title: holiday.name,
           description: holiday.notes,
@@ -125,7 +133,9 @@ export function buildMonthCalendarItems({
         }),
       ];
     }),
-    ...financeItems.filter((item) => isWithinUtcRange(item.date, monthStart, monthEnd)),
+    ...financeItems.filter((item) =>
+      isWithinUtcRange(item.date, monthStart, monthEnd),
+    ),
   ];
 
   return items.sort(compareCalendarItems);
@@ -165,6 +175,7 @@ export function createCalendarItem({
   sourceId,
   sourceType,
   type,
+  holidayKind = null,
   date,
   title,
   description,
@@ -175,6 +186,7 @@ export function createCalendarItem({
   sourceId: string;
   sourceType: CalendarItemSourceType;
   type: CalendarItemType;
+  holidayKind?: CalendarHolidayKind | null;
   date: Date;
   title: string;
   description: string | null;
@@ -190,6 +202,7 @@ export function createCalendarItem({
     sourceId,
     sourceType,
     type,
+    holidayKind,
     date: normalizedDate,
     dateKey,
     title,
@@ -216,7 +229,10 @@ export function validateMonthInput({
   }
 }
 
-export function compareCalendarItems(left: CalendarItem, right: CalendarItem): number {
+export function compareCalendarItems(
+  left: CalendarItem,
+  right: CalendarItem,
+): number {
   const dateDifference = left.date.getTime() - right.date.getTime();
 
   if (dateDifference !== 0) {
@@ -233,7 +249,10 @@ export function compareCalendarItems(left: CalendarItem, right: CalendarItem): n
   return left.title.localeCompare(right.title);
 }
 
-export function getUtcMonthRange(year: number, monthIndex: number): {
+export function getUtcMonthRange(
+  year: number,
+  monthIndex: number,
+): {
   start: Date;
   end: Date;
 } {
@@ -260,14 +279,21 @@ export function isWithinActiveDateRange({
     return false;
   }
 
-  if (normalizedEndDate && normalizedDate.getTime() > normalizedEndDate.getTime()) {
+  if (
+    normalizedEndDate &&
+    normalizedDate.getTime() > normalizedEndDate.getTime()
+  ) {
     return false;
   }
 
   return true;
 }
 
-export function isSameUtcMonth(date: Date, year: number, monthIndex: number): boolean {
+export function isSameUtcMonth(
+  date: Date,
+  year: number,
+  monthIndex: number,
+): boolean {
   const normalizedDate = normalizeUtcDate(date);
 
   return (
@@ -279,8 +305,10 @@ export function isSameUtcMonth(date: Date, year: number, monthIndex: number): bo
 export function isWithinUtcRange(date: Date, start: Date, end: Date): boolean {
   const timestamp = normalizeUtcDate(date).getTime();
 
-  return timestamp >= normalizeUtcDate(start).getTime() &&
-    timestamp <= normalizeUtcDate(end).getTime();
+  return (
+    timestamp >= normalizeUtcDate(start).getTime() &&
+    timestamp <= normalizeUtcDate(end).getTime()
+  );
 }
 
 export function normalizeUtcDate(date: Date): Date {
@@ -291,7 +319,11 @@ export function normalizeUtcDate(date: Date): Date {
   );
 }
 
-export function createUtcDate(year: number, monthIndex: number, day: number): Date {
+export function createUtcDate(
+  year: number,
+  monthIndex: number,
+  day: number,
+): Date {
   const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
   const safeDay = Math.min(day, daysInMonth);
 

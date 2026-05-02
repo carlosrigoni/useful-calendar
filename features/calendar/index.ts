@@ -16,6 +16,7 @@ export {
   validateMonthInput,
   type CalendarItem,
   type CalendarItemCategory,
+  type CalendarHolidayKind,
   type CalendarItemSourceType,
   type CalendarItemType,
 } from "@/features/calendar/calendar-items";

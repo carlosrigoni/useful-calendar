@@ -22,6 +22,7 @@ describe("buildMonthCalendarItems", () => {
         id: "holiday-1",
         name: "Dia do Trabalho",
         date: new Date(Date.UTC(2020, 4, 1)),
+        kind: "national",
         isRecurringYear: true,
         notes: null,
       },
@@ -29,6 +30,7 @@ describe("buildMonthCalendarItems", () => {
         id: "holiday-2",
         name: "Evento especial",
         date: new Date(Date.UTC(2026, 4, 12)),
+        kind: "municipal",
         isRecurringYear: false,
         notes: "Cidade fechada",
       },
@@ -130,8 +132,13 @@ describe("buildMonthCalendarItems", () => {
 
     expect(items[0]).toMatchObject({
       sourceType: "holiday",
+      holidayKind: "national",
       isRecurring: true,
       amount: null,
+    });
+    expect(items[5]).toMatchObject({
+      sourceType: "holiday",
+      holidayKind: "municipal",
     });
     expect(items[3]).toMatchObject({
       sourceType: "recurringTransaction",
@@ -161,6 +168,7 @@ describe("buildMonthCalendarItems", () => {
           id: "holiday-1",
           name: "Feriado de junho",
           date: new Date(Date.UTC(2020, 5, 1)),
+          kind: "national",
           isRecurringYear: true,
           notes: null,
         },

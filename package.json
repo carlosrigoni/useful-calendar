@@ -16,10 +16,10 @@
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",
     "db:reset": "docker compose down -v && docker compose up -d",
-    "prisma:generate": "dlx prisma generate",
-    "prisma:migrate": "dlx prisma migrate dev",
-    "prisma:studio": "dlx prisma studio",
-    "prisma:deploy": "dlx prisma migrate deploy"
+    "prisma:generate": "pnpm dlx prisma generate",
+    "prisma:migrate": "pnpm dlx prisma migrate dev",
+    "prisma:studio": "pnpm dlx prisma studio",
+    "prisma:deploy": "pnpm dlx prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

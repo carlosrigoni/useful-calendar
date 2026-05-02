@@ -1,10 +1,12 @@
 import "server-only";
 
+import { HolidayKind as PrismaHolidayKind } from "@/app/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { buildMonthFinanceCalendarItems } from "@/features/finance/calendar-items";
 
 import {
   buildMonthCalendarItems,
+  type CalendarHolidayKind,
   type CalendarItem,
   validateMonthInput,
 } from "@/features/calendar";
@@ -51,6 +53,7 @@ export async function getMonthCalendarData({
           id: true,
           name: true,
           date: true,
+          kind: true,
           isRecurringYear: true,
           notes: true,
         },
@@ -121,7 +124,21 @@ export async function getMonthCalendarData({
     year,
     month,
     birthdays,
-    holidays,
+    holidays: holidays.map((holiday) => ({
+      ...holiday,
+      kind: mapHolidayKind(holiday.kind),
+    })),
     financeItems,
   });
+}
+
+function mapHolidayKind(kind: PrismaHolidayKind): CalendarHolidayKind {
+  switch (kind) {
+    case PrismaHolidayKind.NATIONAL:
+      return "national";
+    case PrismaHolidayKind.OPTIONAL:
+      return "optional";
+    case PrismaHolidayKind.MUNICIPAL:
+      return "municipal";
+  }
 }

@@ -1,4 +1,8 @@
-import type { CalendarItem, CalendarItemType } from "@/features/calendar/calendar-items";
+import type {
+  CalendarHolidayKind,
+  CalendarItem,
+  CalendarItemType,
+} from "@/features/calendar/calendar-items";
 import type { CalendarGridDay } from "@/features/calendar/month-grid";
 
 export type CalendarFilterKey =
@@ -10,7 +14,9 @@ export type CalendarFilterKey =
 
 export type CalendarIndicatorType =
   | "birthday"
-  | "holiday"
+  | "holidayNational"
+  | "holidayOptional"
+  | "holidayMunicipal"
   | "bill"
   | "salary"
   | "expense";
@@ -24,7 +30,10 @@ export type CalendarClientGridDay = {
   isToday: boolean;
 };
 
-export type CalendarClientItem = Pick<CalendarItem, "id" | "dateKey" | "type">;
+export type CalendarClientItem = Pick<
+  CalendarItem,
+  "id" | "dateKey" | "type" | "holidayKind"
+>;
 
 export type CalendarDayCell = CalendarClientGridDay & {
   indicators: CalendarIndicatorType[];
@@ -57,6 +66,7 @@ export function serializeCalendarItems(
     id: item.id,
     dateKey: item.dateKey,
     type: item.type,
+    holidayKind: item.holidayKind ?? null,
   }));
 }
 
@@ -120,7 +130,7 @@ function summarizeIndicatorTypes(
   const indicators = new Set<CalendarIndicatorType>();
 
   for (const item of items) {
-    const indicatorType = itemTypeToIndicatorType(item.type);
+    const indicatorType = itemToIndicatorType(item);
 
     if (indicatorType) {
       indicators.add(indicatorType);
@@ -130,14 +140,18 @@ function summarizeIndicatorTypes(
   return [...indicators];
 }
 
-function itemTypeToIndicatorType(
-  type: CalendarItemType,
+function itemToIndicatorType(
+  item: CalendarClientItem,
 ): CalendarIndicatorType | null {
-  if (type === "income") {
+  if (item.type === "income") {
     return null;
   }
 
-  return type;
+  if (item.type !== "holiday") {
+    return item.type;
+  }
+
+  return holidayKindToIndicatorType(item.holidayKind ?? "national");
 }
 
 function itemTypeToFilterKey(type: CalendarItemType): CalendarFilterKey | null {
@@ -154,6 +168,19 @@ function itemTypeToFilterKey(type: CalendarItemType): CalendarFilterKey | null {
       return "expenses";
     case "income":
       return null;
+  }
+}
+
+function holidayKindToIndicatorType(
+  kind: CalendarHolidayKind,
+): CalendarIndicatorType {
+  switch (kind) {
+    case "national":
+      return "holidayNational";
+    case "optional":
+      return "holidayOptional";
+    case "municipal":
+      return "holidayMunicipal";
   }
 }
 

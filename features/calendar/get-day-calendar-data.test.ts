@@ -34,6 +34,7 @@ describe("getDayCalendarData", () => {
         sourceId: "holiday-1",
         sourceType: "holiday",
         type: "holiday",
+        holidayKind: "municipal",
         date: new Date(Date.UTC(2026, 4, 20)),
         dateKey: "2026-05-20",
         title: "Feriado local",
@@ -78,7 +79,10 @@ describe("getDayCalendarData", () => {
     });
     expect(dayData.dateKey).toBe("2026-05-20");
     expect(dayData.birthdays.map((item) => item.title)).toEqual(["Ana"]);
-    expect(dayData.holidays.map((item) => item.title)).toEqual(["Feriado local"]);
+    expect(dayData.holidays.map((item) => item.title)).toEqual([
+      "Feriado local",
+    ]);
+    expect(dayData.holidays[0]?.holidayKind).toBe("municipal");
     expect(dayData.finances.map((item) => item.title)).toEqual(["Mercado"]);
   });
 

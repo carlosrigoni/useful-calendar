@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { getCalendarItemLabel } from "@/app/day/[date]/labels";
 import { getDayCalendarData } from "@/features/calendar/get-day-calendar-data";
-import type { CalendarItem, CalendarItemType } from "@/features/calendar";
+import type { CalendarItem } from "@/features/calendar";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -14,18 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "UTC",
 });
 
-const financeTypeLabels: Record<CalendarItemType, string> = {
-  birthday: "Aniversario",
-  holiday: "Feriado",
-  salary: "Salario",
-  bill: "Conta",
-  income: "Entrada",
-  expense: "Gasto",
-};
-
-export default async function DayPage({
-  params,
-}: PageProps<"/day/[date]">) {
+export default async function DayPage({ params }: PageProps<"/day/[date]">) {
   const { date } = await params;
 
   let dayData;
@@ -130,7 +120,7 @@ function Section({
                     {item.title}
                   </p>
                   <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">
-                    {financeTypeLabels[item.type]}
+                    {getCalendarItemLabel(item)}
                   </p>
                   {item.description ? (
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">

@@ -33,7 +33,9 @@ const filterLabels: Record<CalendarFilterKey, string> = {
 
 const indicatorColors: Record<CalendarIndicatorType, string> = {
   birthday: "bg-sky-500",
-  holiday: "bg-amber-500",
+  holidayNational: "bg-amber-500",
+  holidayOptional: "bg-fuchsia-500",
+  holidayMunicipal: "bg-cyan-500",
   bill: "bg-rose-500",
   salary: "bg-emerald-500",
   expense: "bg-violet-500",
