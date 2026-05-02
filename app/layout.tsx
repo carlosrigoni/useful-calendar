@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Life Calendar",
-  description: "Calendario pessoal mensal com organizacao de eventos e resumo financeiro.",
+  description:
+    "Calendario pessoal mensal com organizacao de eventos e resumo financeiro.",
 };
 
 export default function RootLayout({

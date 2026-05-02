@@ -120,6 +120,9 @@ export async function getMonthCalendarData({
     month,
     recurringTransactions,
     transactions,
+    holidayDateKeys: holidays.map((holiday) =>
+      holiday.date.toISOString().slice(0, 10),
+    ),
   });
 
   return buildMonthCalendarItems({

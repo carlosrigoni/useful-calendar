@@ -51,6 +51,7 @@ export type BuildMonthFinanceCalendarItemsOptions = {
   month: number;
   recurringTransactions: RecurringTransactionRecord[];
   transactions: TransactionRecord[];
+  holidayDateKeys?: string[];
 };
 
 export function buildMonthFinanceCalendarItems({
@@ -58,9 +59,11 @@ export function buildMonthFinanceCalendarItems({
   month,
   recurringTransactions,
   transactions,
+  holidayDateKeys = [],
 }: BuildMonthFinanceCalendarItemsOptions): CalendarItem[] {
   const monthIndex = month - 1;
   const { start: monthStart, end: monthEnd } = getUtcMonthRange(year, monthIndex);
+  const holidayDateKeySet = new Set(holidayDateKeys);
 
   return [
     ...recurringTransactions.flatMap((transaction) => {
@@ -68,6 +71,7 @@ export function buildMonthFinanceCalendarItems({
         transaction,
         year,
         month,
+        holidayDateKeySet,
       });
 
       if (!occurrenceDate) {
@@ -128,16 +132,19 @@ function getRecurringTransactionOccurrenceDate({
   transaction,
   year,
   month,
+  holidayDateKeySet,
 }: {
   transaction: RecurringTransactionRecord;
   year: number;
   month: number;
+  holidayDateKeySet: Set<string>;
 }): Date | null {
   const monthIndex = month - 1;
   const scheduledDay = getScheduledDayOfMonth({
     transaction,
     year,
     monthIndex,
+    holidayDateKeySet,
   });
 
   if (scheduledDay === null) {
@@ -162,17 +169,24 @@ function getScheduledDayOfMonth({
   transaction,
   year,
   monthIndex,
+  holidayDateKeySet,
 }: {
   transaction: RecurringTransactionRecord;
   year: number;
   monthIndex: number;
+  holidayDateKeySet: Set<string>;
 }): number | null {
   if (transaction.dayRule === RecurringDayRule.BUSINESS_DAY) {
     if (transaction.businessDayOfMonth === null) {
       return null;
     }
 
-    return getBusinessDayOfMonth(year, monthIndex, transaction.businessDayOfMonth);
+    return getBusinessDayOfMonth(
+      year,
+      monthIndex,
+      transaction.businessDayOfMonth,
+      holidayDateKeySet,
+    );
   }
 
   return transaction.dayOfMonth;
@@ -182,6 +196,7 @@ function getBusinessDayOfMonth(
   year: number,
   monthIndex: number,
   ordinal: number,
+  holidayDateKeySet: Set<string>,
 ): number {
   let businessDayCount = 0;
   const lastDayOfMonth = createUtcDate(year, monthIndex + 1, 0).getUTCDate();
@@ -189,8 +204,9 @@ function getBusinessDayOfMonth(
   for (let day = 1; day <= lastDayOfMonth; day += 1) {
     const date = createUtcDate(year, monthIndex, day);
     const weekDay = date.getUTCDay();
+    const dateKey = date.toISOString().slice(0, 10);
 
-    if (weekDay === 0 || weekDay === 6) {
+    if (weekDay === 0 || weekDay === 6 || holidayDateKeySet.has(dateKey)) {
       continue;
     }
 

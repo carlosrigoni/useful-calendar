@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getCalendarItemLabel } from "@/app/day/[date]/labels";
-import { getDayCalendarData } from "@/features/calendar/get-day-calendar-data";
 import type { CalendarItem } from "@/features/calendar";
+import { getDayCalendarData } from "@/features/calendar/get-day-calendar-data";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",

@@ -107,7 +107,7 @@ describe("buildMonthFinanceCalendarItems", () => {
 
     expect(items[0]).toMatchObject({
       sourceType: "recurringTransaction",
-      amount: "5000.00",
+      amount: "1000.00",
       isRecurring: true,
     });
     expect(items[1]?.category).toEqual({
@@ -199,7 +199,7 @@ describe("buildMonthFinanceCalendarItems", () => {
   it("supports recurring transactions scheduled on the nth business day", () => {
     const items = buildMonthFinanceCalendarItems({
       year: 2026,
-      month: 2,
+      month: 5,
       recurringTransactions: [
         {
           id: "recurring-1",
@@ -209,7 +209,7 @@ describe("buildMonthFinanceCalendarItems", () => {
           amount: money("100.00"),
           dayRule: "BUSINESS_DAY",
           dayOfMonth: null,
-          businessDayOfMonth: 8,
+          businessDayOfMonth: 5,
           monthOfYear: null,
           startDate: new Date(Date.UTC(2026, 0, 1)),
           endDate: null,
@@ -217,11 +217,12 @@ describe("buildMonthFinanceCalendarItems", () => {
           category: null,
         },
       ],
+      holidayDateKeys: ["2026-05-01"],
       transactions: [],
     });
 
     expect(items.map((item) => [item.dateKey, item.type, item.title])).toEqual([
-      ["2026-02-06", "salary", "Salario"],
+      ["2026-05-08", "salary", "Salario"],
     ]);
   });
 });

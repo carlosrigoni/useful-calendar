@@ -75,7 +75,7 @@ function ExpensesByCategoryChart({
   return (
     <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_12rem]">
       <div className="h-52 min-w-0">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={208}>
           <PieChart>
             <Pie
               data={data}
@@ -135,7 +135,7 @@ function ExpensesByCategoryChart({
 function CashflowChart({ data }: { data: CashflowDatum[] }) {
   return (
     <div className="h-52 min-w-0">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={208}>
         <BarChart data={data} barCategoryGap={24}>
           <XAxis
             dataKey="name"
@@ -171,7 +171,7 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-neutral-200 bg-white/80 p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/50">
+    <section className="min-w-0 rounded-3xl border border-neutral-200 bg-white/80 p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/50">
       <div className="mb-4 space-y-1">
         <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
           {title}
