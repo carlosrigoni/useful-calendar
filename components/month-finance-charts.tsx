@@ -74,8 +74,9 @@ function ExpensesByCategoryChart({
 }) {
   return (
     <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_12rem]">
-      <div className="h-52 min-w-0">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={208}>
+      <div className="min-w-0">
+        <div className="min-w-0" style={{ minHeight: 208 }}>
+          <ResponsiveContainer width="100%" aspect={1.6} minWidth={0}>
           <PieChart>
             <Pie
               data={data}
@@ -100,7 +101,8 @@ function ExpensesByCategoryChart({
             </Pie>
             <Tooltip formatter={(value) => formatTooltipValue(value)} />
           </PieChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <ul className="space-y-2 text-sm">
@@ -134,8 +136,9 @@ function ExpensesByCategoryChart({
 
 function CashflowChart({ data }: { data: CashflowDatum[] }) {
   return (
-    <div className="h-52 min-w-0">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={208}>
+    <div className="min-w-0">
+      <div className="min-w-0" style={{ minHeight: 208 }}>
+        <ResponsiveContainer width="100%" aspect={1.8} minWidth={0}>
         <BarChart data={data} barCategoryGap={24}>
           <XAxis
             dataKey="name"
@@ -156,7 +159,8 @@ function CashflowChart({ data }: { data: CashflowDatum[] }) {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
