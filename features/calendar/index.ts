@@ -10,3 +10,17 @@ export {
   type CalendarItemSourceType,
   type CalendarItemType,
 } from "@/features/calendar/calendar-items";
+export {
+  buildCalendarDayCells,
+  buildCalendarItemIndex,
+  applyCalendarFilters,
+  defaultCalendarFilters,
+  serializeCalendarGridDays,
+  serializeCalendarItems,
+  type CalendarClientGridDay,
+  type CalendarClientItem,
+  type CalendarDayCell,
+  type CalendarFilterKey,
+  type CalendarFilters,
+  type CalendarIndicatorType,
+} from "@/features/calendar/month-view";

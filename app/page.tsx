@@ -1,4 +1,10 @@
+import { MonthCalendar } from "@/components/month-calendar";
 import { MonthFinanceCharts } from "@/components/month-finance-charts";
+import {
+  generateCalendarMonthGrid,
+  serializeCalendarGridDays,
+  serializeCalendarItems,
+} from "@/features/calendar";
 import { getMonthCalendarData } from "@/features/calendar/get-month-calendar-data";
 import { buildMonthFinanceSummary } from "@/features/finance/month-finance-summary";
 
@@ -28,8 +34,17 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     max: 12,
   });
   const monthItems = await getMonthCalendarData({ year, month });
+  const calendarDays = serializeCalendarGridDays(
+    generateCalendarMonthGrid({
+      year,
+      month,
+    }),
+  );
+  const calendarItems = serializeCalendarItems(monthItems);
   const financeSummary = buildMonthFinanceSummary(monthItems);
   const monthDate = new Date(Date.UTC(year, month - 1, 1));
+  const previousMonthHref = getMonthHref({ year, month, offset: -1 });
+  const nextMonthHref = getMonthHref({ year, month, offset: 1 });
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-10">
@@ -69,8 +84,29 @@ export default async function Home({ searchParams }: PageProps<"/">) {
       </section>
 
       <MonthFinanceCharts summary={financeSummary} />
+      <MonthCalendar
+        title={monthFormatter.format(monthDate)}
+        previousMonthHref={previousMonthHref}
+        nextMonthHref={nextMonthHref}
+        days={calendarDays}
+        items={calendarItems}
+      />
     </main>
   );
+}
+
+function getMonthHref({
+  year,
+  month,
+  offset,
+}: {
+  year: number;
+  month: number;
+  offset: -1 | 1;
+}): string {
+  const targetDate = new Date(Date.UTC(year, month - 1 + offset, 1));
+
+  return `/?year=${targetDate.getUTCFullYear()}&month=${targetDate.getUTCMonth() + 1}`;
 }
 
 function parseNumericParam(
