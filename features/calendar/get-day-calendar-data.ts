@@ -1,8 +1,8 @@
 import "server-only";
 
-import { getMonthCalendarData } from "./get-month-calendar-data";
-import type { CalendarItem } from "./calendar-items";
-import { parseDateInput } from "./date-input";
+import type { CalendarItem } from "@/features/calendar";
+import { parseDateInput } from "@/features/calendar/date-input";
+import { getMonthCalendarData } from "@/features/calendar/get-month-calendar-data";
 
 export type DayCalendarData = {
   date: Date;

@@ -5,6 +5,15 @@ export {
 } from "@/features/calendar/month-grid";
 export {
   buildMonthCalendarItems,
+  compareCalendarItems,
+  createCalendarItem,
+  createUtcDate,
+  getUtcMonthRange,
+  isSameUtcMonth,
+  isWithinActiveDateRange,
+  isWithinUtcRange,
+  normalizeUtcDate,
+  validateMonthInput,
   type CalendarItem,
   type CalendarItemCategory,
   type CalendarItemSourceType,

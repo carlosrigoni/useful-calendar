@@ -1,5 +1,5 @@
-import type { CalendarItem, CalendarItemType } from "./calendar-items";
-import type { CalendarGridDay } from "./month-grid";
+import type { CalendarItem, CalendarItemType } from "@/features/calendar/calendar-items";
+import type { CalendarGridDay } from "@/features/calendar/month-grid";
 
 export type CalendarFilterKey =
   | "birthdays"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { generateCalendarMonthGrid } from "./month-grid";
+import { generateCalendarMonthGrid } from "@/features/calendar/month-grid";
 
 describe("generateCalendarMonthGrid", () => {
   it("generates every visible day for a month in chronological order", () => {

@@ -1,9 +1,3 @@
-import {
-  RecurrenceFrequency,
-  RecurringTransactionType,
-  TransactionType,
-} from "../../app/generated/prisma/enums";
-
 export type CalendarItemType =
   | "birthday"
   | "holiday"
@@ -38,10 +32,6 @@ export type CalendarItem = {
   isRecurring: boolean;
 };
 
-type MoneyValue = {
-  toString(): string;
-};
-
 export type BirthdayRecord = {
   id: string;
   name: string;
@@ -57,37 +47,12 @@ export type HolidayRecord = {
   notes: string | null;
 };
 
-export type RecurringTransactionRecord = {
-  id: string;
-  name: string;
-  type: RecurringTransactionType;
-  frequency: RecurrenceFrequency;
-  amount: MoneyValue;
-  dayOfMonth: number | null;
-  monthOfYear: number | null;
-  startDate: Date;
-  endDate: Date | null;
-  notes: string | null;
-  category: CalendarItemCategory | null;
-};
-
-export type TransactionRecord = {
-  id: string;
-  name: string;
-  type: TransactionType;
-  date: Date;
-  amount: MoneyValue;
-  notes: string | null;
-  category: CalendarItemCategory | null;
-};
-
 export type BuildMonthCalendarItemsOptions = {
   year: number;
   month: number;
   birthdays: BirthdayRecord[];
   holidays: HolidayRecord[];
-  recurringTransactions: RecurringTransactionRecord[];
-  transactions: TransactionRecord[];
+  financeItems: CalendarItem[];
 };
 
 const calendarItemTypeOrder: Record<CalendarItemType, number> = {
@@ -104,8 +69,7 @@ export function buildMonthCalendarItems({
   month,
   birthdays,
   holidays,
-  recurringTransactions,
-  transactions,
+  financeItems,
 }: BuildMonthCalendarItemsOptions): CalendarItem[] {
   validateMonthInput({ year, month });
 
@@ -161,62 +125,7 @@ export function buildMonthCalendarItems({
         }),
       ];
     }),
-    ...recurringTransactions.flatMap((transaction) => {
-      const occurrenceDate = getRecurringTransactionOccurrenceDate({
-        transaction,
-        year,
-        month,
-      });
-
-      if (!occurrenceDate) {
-        return [];
-      }
-
-      if (!isWithinUtcRange(occurrenceDate, monthStart, monthEnd)) {
-        return [];
-      }
-
-      if (!isWithinActiveDateRange({
-        date: occurrenceDate,
-        startDate: transaction.startDate,
-        endDate: transaction.endDate,
-      })) {
-        return [];
-      }
-
-      return [
-        createCalendarItem({
-          sourceId: transaction.id,
-          sourceType: "recurringTransaction",
-          type:
-            transaction.type === RecurringTransactionType.SALARY
-              ? "salary"
-              : "bill",
-          date: occurrenceDate,
-          title: transaction.name,
-          description: transaction.notes,
-          amount: transaction.amount.toString(),
-          category: transaction.category,
-          isRecurring: true,
-        }),
-      ];
-    }),
-    ...transactions
-      .filter((transaction) => isSameUtcMonth(transaction.date, year, monthIndex))
-      .map((transaction) =>
-        createCalendarItem({
-          sourceId: transaction.id,
-          sourceType: "transaction",
-          type:
-            transaction.type === TransactionType.INCOME ? "income" : "expense",
-          date: normalizeUtcDate(transaction.date),
-          title: transaction.name,
-          description: transaction.notes,
-          amount: transaction.amount.toString(),
-          category: transaction.category,
-          isRecurring: false,
-        }),
-      ),
+    ...financeItems.filter((item) => isWithinUtcRange(item.date, monthStart, monthEnd)),
   ];
 
   return items.sort(compareCalendarItems);
@@ -252,36 +161,7 @@ function getHolidayOccurrenceDate({
   return normalizedDate;
 }
 
-function getRecurringTransactionOccurrenceDate({
-  transaction,
-  year,
-  month,
-}: {
-  transaction: RecurringTransactionRecord;
-  year: number;
-  month: number;
-}): Date | null {
-  const monthIndex = month - 1;
-
-  if (transaction.dayOfMonth === null) {
-    return null;
-  }
-
-  if (transaction.frequency === RecurrenceFrequency.MONTHLY) {
-    return createUtcDate(year, monthIndex, transaction.dayOfMonth);
-  }
-
-  if (
-    transaction.frequency === RecurrenceFrequency.YEARLY &&
-    transaction.monthOfYear === month
-  ) {
-    return createUtcDate(year, monthIndex, transaction.dayOfMonth);
-  }
-
-  return null;
-}
-
-function createCalendarItem({
+export function createCalendarItem({
   sourceId,
   sourceType,
   type,
@@ -320,7 +200,7 @@ function createCalendarItem({
   };
 }
 
-function validateMonthInput({
+export function validateMonthInput({
   year,
   month,
 }: {
@@ -336,7 +216,7 @@ function validateMonthInput({
   }
 }
 
-function compareCalendarItems(left: CalendarItem, right: CalendarItem): number {
+export function compareCalendarItems(left: CalendarItem, right: CalendarItem): number {
   const dateDifference = left.date.getTime() - right.date.getTime();
 
   if (dateDifference !== 0) {
@@ -353,7 +233,7 @@ function compareCalendarItems(left: CalendarItem, right: CalendarItem): number {
   return left.title.localeCompare(right.title);
 }
 
-function getUtcMonthRange(year: number, monthIndex: number): {
+export function getUtcMonthRange(year: number, monthIndex: number): {
   start: Date;
   end: Date;
 } {
@@ -363,7 +243,7 @@ function getUtcMonthRange(year: number, monthIndex: number): {
   };
 }
 
-function isWithinActiveDateRange({
+export function isWithinActiveDateRange({
   date,
   startDate,
   endDate,
@@ -387,7 +267,7 @@ function isWithinActiveDateRange({
   return true;
 }
 
-function isSameUtcMonth(date: Date, year: number, monthIndex: number): boolean {
+export function isSameUtcMonth(date: Date, year: number, monthIndex: number): boolean {
   const normalizedDate = normalizeUtcDate(date);
 
   return (
@@ -396,14 +276,14 @@ function isSameUtcMonth(date: Date, year: number, monthIndex: number): boolean {
   );
 }
 
-function isWithinUtcRange(date: Date, start: Date, end: Date): boolean {
+export function isWithinUtcRange(date: Date, start: Date, end: Date): boolean {
   const timestamp = normalizeUtcDate(date).getTime();
 
   return timestamp >= normalizeUtcDate(start).getTime() &&
     timestamp <= normalizeUtcDate(end).getTime();
 }
 
-function normalizeUtcDate(date: Date): Date {
+export function normalizeUtcDate(date: Date): Date {
   return createUtcDate(
     date.getUTCFullYear(),
     date.getUTCMonth(),
@@ -411,7 +291,7 @@ function normalizeUtcDate(date: Date): Date {
   );
 }
 
-function createUtcDate(year: number, monthIndex: number, day: number): Date {
+export function createUtcDate(year: number, monthIndex: number, day: number): Date {
   const daysInMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
   const safeDay = Math.min(day, daysInMonth);
 

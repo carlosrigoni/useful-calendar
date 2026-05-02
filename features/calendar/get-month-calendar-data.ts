@@ -1,11 +1,13 @@
 import "server-only";
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from "@/lib/prisma";
+import { buildMonthFinanceCalendarItems } from "@/features/finance/calendar-items";
 
 import {
   buildMonthCalendarItems,
   type CalendarItem,
-} from "./calendar-items";
+  validateMonthInput,
+} from "@/features/calendar";
 
 export type GetMonthCalendarDataOptions = {
   year: number;
@@ -108,25 +110,18 @@ export async function getMonthCalendarData({
       }),
     ]);
 
+  const financeItems = buildMonthFinanceCalendarItems({
+    year,
+    month,
+    recurringTransactions,
+    transactions,
+  });
+
   return buildMonthCalendarItems({
     year,
     month,
     birthdays,
     holidays,
-    recurringTransactions,
-    transactions,
+    financeItems,
   });
-}
-
-function validateMonthInput({
-  year,
-  month,
-}: GetMonthCalendarDataOptions): void {
-  if (!Number.isInteger(year)) {
-    throw new RangeError("year must be an integer");
-  }
-
-  if (!Number.isInteger(month) || month < 1 || month > 12) {
-    throw new RangeError("month must be an integer between 1 and 12");
-  }
 }

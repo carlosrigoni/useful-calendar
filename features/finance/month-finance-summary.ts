@@ -1,4 +1,4 @@
-import type { CalendarItem } from "../calendar";
+import type { CalendarItem } from "@/features/calendar";
 
 export type ExpenseByCategoryDatum = {
   name: string;

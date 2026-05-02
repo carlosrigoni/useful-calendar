@@ -7,7 +7,7 @@ import {
   defaultCalendarFilters,
   type CalendarClientGridDay,
   type CalendarClientItem,
-} from "./month-view";
+} from "@/features/calendar/month-view";
 
 describe("calendar month view helpers", () => {
   it("indexes items by date key", () => {

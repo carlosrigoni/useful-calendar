@@ -3,19 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   buildMonthCalendarItems,
   type BirthdayRecord,
+  type CalendarItem,
   type HolidayRecord,
-  type RecurringTransactionRecord,
-  type TransactionRecord,
-} from "./calendar-items";
-
-function money(value: string): { toString(): string } {
-  return {
-    toString: () => value,
-  };
-}
+} from "@/features/calendar/calendar-items";
 
 describe("buildMonthCalendarItems", () => {
-  it("normalizes birthdays, holidays, recurring transactions, and one-off transactions", () => {
+  it("combines birthday, holiday, and financial items into a sorted month list", () => {
     const birthdays: BirthdayRecord[] = [
       {
         id: "birthday-1",
@@ -40,73 +33,79 @@ describe("buildMonthCalendarItems", () => {
         notes: "Cidade fechada",
       },
     ];
-    const recurringTransactions: RecurringTransactionRecord[] = [
+    const financeItems: CalendarItem[] = [
       {
-        id: "recurring-1",
-        name: "Salario",
-        type: "SALARY",
-        frequency: "MONTHLY",
-        amount: money("5000.00"),
-        dayOfMonth: 5,
-        monthOfYear: null,
-        startDate: new Date(Date.UTC(2026, 0, 1)),
-        endDate: null,
-        notes: null,
+        id: "recurringTransaction:recurring-1:2026-05-05",
+        sourceId: "recurring-1",
+        sourceType: "recurringTransaction",
+        type: "salary",
+        date: new Date(Date.UTC(2026, 4, 5)),
+        dateKey: "2026-05-05",
+        title: "Salario",
+        description: null,
+        amount: "5000.00",
         category: null,
+        isRecurring: true,
       },
       {
-        id: "recurring-2",
-        name: "Aluguel",
-        type: "BILL",
-        frequency: "MONTHLY",
-        amount: money("1500.00"),
-        dayOfMonth: 10,
-        monthOfYear: null,
-        startDate: new Date(Date.UTC(2026, 0, 1)),
-        endDate: null,
-        notes: "Pagar via pix",
+        id: "recurringTransaction:recurring-2:2026-05-10",
+        sourceId: "recurring-2",
+        sourceType: "recurringTransaction",
+        type: "bill",
+        date: new Date(Date.UTC(2026, 4, 10)),
+        dateKey: "2026-05-10",
+        title: "Aluguel",
+        description: "Pagar via pix",
+        amount: "1500.00",
         category: {
           id: "category-1",
           name: "Moradia",
           color: "#334455",
         },
+        isRecurring: true,
       },
       {
-        id: "recurring-3",
-        name: "IPVA",
-        type: "BILL",
-        frequency: "YEARLY",
-        amount: money("900.00"),
-        dayOfMonth: 8,
-        monthOfYear: 5,
-        startDate: new Date(Date.UTC(2026, 0, 1)),
-        endDate: null,
-        notes: null,
+        id: "recurringTransaction:recurring-3:2026-05-08",
+        sourceId: "recurring-3",
+        sourceType: "recurringTransaction",
+        type: "bill",
+        date: new Date(Date.UTC(2026, 4, 8)),
+        dateKey: "2026-05-08",
+        title: "IPVA",
+        description: null,
+        amount: "900.00",
         category: null,
+        isRecurring: true,
       },
-    ];
-    const transactions: TransactionRecord[] = [
       {
-        id: "transaction-1",
-        name: "Mercado",
-        type: "EXPENSE",
+        id: "transaction:transaction-1:2026-05-03",
+        sourceId: "transaction-1",
+        sourceType: "transaction",
+        type: "expense",
         date: new Date(Date.UTC(2026, 4, 3)),
-        amount: money("220.45"),
-        notes: "Compra do mes",
+        dateKey: "2026-05-03",
+        title: "Mercado",
+        description: "Compra do mes",
+        amount: "220.45",
         category: {
           id: "category-2",
           name: "Alimentacao",
           color: "#55aa66",
         },
+        isRecurring: false,
       },
       {
-        id: "transaction-2",
-        name: "Freela",
-        type: "INCOME",
+        id: "transaction:transaction-2:2026-05-18",
+        sourceId: "transaction-2",
+        sourceType: "transaction",
+        type: "income",
         date: new Date(Date.UTC(2026, 4, 18)),
-        amount: money("800.00"),
-        notes: null,
+        dateKey: "2026-05-18",
+        title: "Freela",
+        description: null,
+        amount: "800.00",
         category: null,
+        isRecurring: false,
       },
     ];
 
@@ -115,8 +114,7 @@ describe("buildMonthCalendarItems", () => {
       month: 5,
       birthdays,
       holidays,
-      recurringTransactions,
-      transactions,
+      financeItems,
     });
 
     expect(items.map((item) => [item.dateKey, item.type, item.title])).toEqual([
@@ -146,7 +144,7 @@ describe("buildMonthCalendarItems", () => {
     });
   });
 
-  it("keeps only items that belong to the selected month and active range", () => {
+  it("keeps only items that belong to the selected month", () => {
     const items = buildMonthCalendarItems({
       year: 2026,
       month: 5,
@@ -167,43 +165,19 @@ describe("buildMonthCalendarItems", () => {
           notes: null,
         },
       ],
-      recurringTransactions: [
+      financeItems: [
         {
-          id: "recurring-1",
-          name: "Conta encerrada",
-          type: "BILL",
-          frequency: "MONTHLY",
-          amount: money("10.00"),
-          dayOfMonth: 3,
-          monthOfYear: null,
-          startDate: new Date(Date.UTC(2026, 0, 1)),
-          endDate: new Date(Date.UTC(2026, 3, 30)),
-          notes: null,
-          category: null,
-        },
-        {
-          id: "recurring-2",
-          name: "Frequencia anual fora do mes",
-          type: "BILL",
-          frequency: "YEARLY",
-          amount: money("20.00"),
-          dayOfMonth: 7,
-          monthOfYear: 6,
-          startDate: new Date(Date.UTC(2026, 0, 1)),
-          endDate: null,
-          notes: null,
-          category: null,
-        },
-      ],
-      transactions: [
-        {
-          id: "transaction-1",
-          name: "Abril",
-          type: "EXPENSE",
+          id: "transaction:transaction-1:2026-04-30",
+          sourceId: "transaction-1",
+          sourceType: "transaction",
+          type: "expense",
           date: new Date(Date.UTC(2026, 3, 30)),
-          amount: money("99.00"),
-          notes: null,
+          dateKey: "2026-04-30",
+          title: "Abril",
+          description: null,
+          amount: "99.00",
           category: null,
+          isRecurring: false,
         },
       ],
     });
@@ -211,7 +185,7 @@ describe("buildMonthCalendarItems", () => {
     expect(items).toEqual([]);
   });
 
-  it("clamps recurring and yearly occurrences to the last day of shorter months", () => {
+  it("clamps birthday occurrences to the last day of shorter months", () => {
     const items = buildMonthCalendarItems({
       year: 2026,
       month: 2,
@@ -224,28 +198,10 @@ describe("buildMonthCalendarItems", () => {
         },
       ],
       holidays: [],
-      recurringTransactions: [
-        {
-          id: "recurring-1",
-          name: "Assinatura",
-          type: "BILL",
-          frequency: "MONTHLY",
-          amount: money("39.90"),
-          dayOfMonth: 31,
-          monthOfYear: null,
-          startDate: new Date(Date.UTC(2026, 0, 1)),
-          endDate: null,
-          notes: null,
-          category: null,
-        },
-      ],
-      transactions: [],
+      financeItems: [],
     });
 
-    expect(items.map((item) => item.dateKey)).toEqual([
-      "2026-02-28",
-      "2026-02-28",
-    ]);
+    expect(items.map((item) => item.dateKey)).toEqual(["2026-02-28"]);
   });
 
   it("rejects invalid month input", () => {
@@ -255,8 +211,7 @@ describe("buildMonthCalendarItems", () => {
         month: 13,
         birthdays: [],
         holidays: [],
-        recurringTransactions: [],
-        transactions: [],
+        financeItems: [],
       }),
     ).toThrowError(/month must be an integer between 1 and 12/i);
   });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { CalendarItem } from "../calendar";
-import { buildMonthFinanceSummary } from "./month-finance-summary";
+import type { CalendarItem } from "@/features/calendar";
+import { buildMonthFinanceSummary } from "@/features/finance/month-finance-summary";
 
 function createCalendarItem(
   overrides: Partial<CalendarItem> & Pick<CalendarItem, "id" | "type" | "title">,
