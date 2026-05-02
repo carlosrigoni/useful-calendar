@@ -1,5 +1,6 @@
 import {
   RecurrenceFrequency,
+  RecurringDayRule,
   RecurringTransactionType,
   TransactionType,
 } from "@/app/generated/prisma/enums";
@@ -25,7 +26,9 @@ export type RecurringTransactionRecord = {
   type: RecurringTransactionType;
   frequency: RecurrenceFrequency;
   amount: MoneyValue;
+  dayRule: RecurringDayRule;
   dayOfMonth: number | null;
+  businessDayOfMonth: number | null;
   monthOfYear: number | null;
   startDate: Date;
   endDate: Date | null;
@@ -131,21 +134,72 @@ function getRecurringTransactionOccurrenceDate({
   month: number;
 }): Date | null {
   const monthIndex = month - 1;
+  const scheduledDay = getScheduledDayOfMonth({
+    transaction,
+    year,
+    monthIndex,
+  });
 
-  if (transaction.dayOfMonth === null) {
+  if (scheduledDay === null) {
     return null;
   }
 
   if (transaction.frequency === RecurrenceFrequency.MONTHLY) {
-    return createUtcDate(year, monthIndex, transaction.dayOfMonth);
+    return createUtcDate(year, monthIndex, scheduledDay);
   }
 
   if (
     transaction.frequency === RecurrenceFrequency.YEARLY &&
     transaction.monthOfYear === month
   ) {
-    return createUtcDate(year, monthIndex, transaction.dayOfMonth);
+    return createUtcDate(year, monthIndex, scheduledDay);
   }
 
   return null;
+}
+
+function getScheduledDayOfMonth({
+  transaction,
+  year,
+  monthIndex,
+}: {
+  transaction: RecurringTransactionRecord;
+  year: number;
+  monthIndex: number;
+}): number | null {
+  if (transaction.dayRule === RecurringDayRule.BUSINESS_DAY) {
+    if (transaction.businessDayOfMonth === null) {
+      return null;
+    }
+
+    return getBusinessDayOfMonth(year, monthIndex, transaction.businessDayOfMonth);
+  }
+
+  return transaction.dayOfMonth;
+}
+
+function getBusinessDayOfMonth(
+  year: number,
+  monthIndex: number,
+  ordinal: number,
+): number {
+  let businessDayCount = 0;
+  const lastDayOfMonth = createUtcDate(year, monthIndex + 1, 0).getUTCDate();
+
+  for (let day = 1; day <= lastDayOfMonth; day += 1) {
+    const date = createUtcDate(year, monthIndex, day);
+    const weekDay = date.getUTCDay();
+
+    if (weekDay === 0 || weekDay === 6) {
+      continue;
+    }
+
+    businessDayCount += 1;
+
+    if (businessDayCount === ordinal) {
+      return day;
+    }
+  }
+
+  return lastDayOfMonth;
 }

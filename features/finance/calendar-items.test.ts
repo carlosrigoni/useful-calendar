@@ -20,8 +20,10 @@ describe("buildMonthFinanceCalendarItems", () => {
         name: "Salario",
         type: "SALARY",
         frequency: "MONTHLY",
-        amount: money("5000.00"),
+        amount: money("1000.00"),
+        dayRule: "CALENDAR_DAY",
         dayOfMonth: 5,
+        businessDayOfMonth: null,
         monthOfYear: null,
         startDate: new Date(Date.UTC(2026, 0, 1)),
         endDate: null,
@@ -34,7 +36,9 @@ describe("buildMonthFinanceCalendarItems", () => {
         type: "BILL",
         frequency: "MONTHLY",
         amount: money("1500.00"),
+        dayRule: "CALENDAR_DAY",
         dayOfMonth: 10,
+        businessDayOfMonth: null,
         monthOfYear: null,
         startDate: new Date(Date.UTC(2026, 0, 1)),
         endDate: null,
@@ -51,7 +55,9 @@ describe("buildMonthFinanceCalendarItems", () => {
         type: "BILL",
         frequency: "YEARLY",
         amount: money("900.00"),
+        dayRule: "CALENDAR_DAY",
         dayOfMonth: 8,
+        businessDayOfMonth: null,
         monthOfYear: 5,
         startDate: new Date(Date.UTC(2026, 0, 1)),
         endDate: null,
@@ -122,7 +128,9 @@ describe("buildMonthFinanceCalendarItems", () => {
           type: "BILL",
           frequency: "MONTHLY",
           amount: money("10.00"),
+          dayRule: "CALENDAR_DAY",
           dayOfMonth: 3,
+          businessDayOfMonth: null,
           monthOfYear: null,
           startDate: new Date(Date.UTC(2026, 0, 1)),
           endDate: new Date(Date.UTC(2026, 3, 30)),
@@ -135,7 +143,9 @@ describe("buildMonthFinanceCalendarItems", () => {
           type: "BILL",
           frequency: "YEARLY",
           amount: money("20.00"),
+          dayRule: "CALENDAR_DAY",
           dayOfMonth: 7,
+          businessDayOfMonth: null,
           monthOfYear: 6,
           startDate: new Date(Date.UTC(2026, 0, 1)),
           endDate: null,
@@ -170,7 +180,9 @@ describe("buildMonthFinanceCalendarItems", () => {
           type: "BILL",
           frequency: "MONTHLY",
           amount: money("39.90"),
+          dayRule: "CALENDAR_DAY",
           dayOfMonth: 31,
+          businessDayOfMonth: null,
           monthOfYear: null,
           startDate: new Date(Date.UTC(2026, 0, 1)),
           endDate: null,
@@ -182,5 +194,34 @@ describe("buildMonthFinanceCalendarItems", () => {
     });
 
     expect(items.map((item) => item.dateKey)).toEqual(["2026-02-28"]);
+  });
+
+  it("supports recurring transactions scheduled on the nth business day", () => {
+    const items = buildMonthFinanceCalendarItems({
+      year: 2026,
+      month: 2,
+      recurringTransactions: [
+        {
+          id: "recurring-1",
+          name: "Salario",
+          type: "SALARY",
+          frequency: "MONTHLY",
+          amount: money("100.00"),
+          dayRule: "BUSINESS_DAY",
+          dayOfMonth: null,
+          businessDayOfMonth: 8,
+          monthOfYear: null,
+          startDate: new Date(Date.UTC(2026, 0, 1)),
+          endDate: null,
+          notes: null,
+          category: null,
+        },
+      ],
+      transactions: [],
+    });
+
+    expect(items.map((item) => [item.dateKey, item.type, item.title])).toEqual([
+      ["2026-02-06", "salary", "Salario"],
+    ]);
   });
 });

@@ -33,6 +33,11 @@ enum RecurrenceFrequency {
   YEARLY
 }
 
+enum RecurringDayRule {
+  CALENDAR_DAY
+  BUSINESS_DAY
+}
+
 enum HolidayKind {
   NATIONAL
   OPTIONAL
@@ -75,20 +80,22 @@ model Holiday {
 }
 
 model RecurringTransaction {
-  id          String                    @id @default(cuid())
-  name        String
-  type        RecurringTransactionType
-  frequency   RecurrenceFrequency       @default(MONTHLY)
-  amount      Decimal                   @db.Decimal(12, 2)
-  dayOfMonth  Int?
-  monthOfYear Int?
-  startDate   DateTime                  @db.Date
-  endDate     DateTime?                 @db.Date
-  notes       String?
-  categoryId  String?
-  createdAt   DateTime                  @default(now())
-  updatedAt   DateTime                  @updatedAt
-  category    Category?                 @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  id              String                    @id @default(cuid())
+  name            String
+  type            RecurringTransactionType
+  frequency       RecurrenceFrequency       @default(MONTHLY)
+  amount          Decimal                   @db.Decimal(12, 2)
+  dayRule         RecurringDayRule          @default(CALENDAR_DAY)
+  dayOfMonth      Int?
+  businessDayOfMonth Int?
+  monthOfYear     Int?
+  startDate       DateTime                  @db.Date
+  endDate         DateTime?                 @db.Date
+  notes           String?
+  categoryId      String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  category        Category?                 @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@index([type])
   @@index([frequency])
