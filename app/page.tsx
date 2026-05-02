@@ -48,7 +48,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-10">
-      <section className="rounded-[2rem] border border-neutral-200 bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.12),_transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,244,245,0.92))] p-6 shadow-sm dark:border-neutral-800 dark:bg-[radial-gradient(circle_at_top_left,_rgba(45,212,191,0.14),_transparent_38%),linear-gradient(180deg,rgba(10,10,10,0.96),rgba(23,23,23,0.92))]">
+      <section className="rounded-4xl border border-neutral-200 bg-[radial-gradient(circle_at_top_left,rgba(15,118,110,0.12),transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,244,245,0.92))] p-6 shadow-sm dark:border-neutral-800 dark:bg-[radial-gradient(circle_at_top_left,rgba(45,212,191,0.14),transparent_38%),linear-gradient(180deg,rgba(10,10,10,0.96),rgba(23,23,23,0.92))]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-2">
             <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">

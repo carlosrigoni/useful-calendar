@@ -46,7 +46,9 @@ export function MonthCalendar({
   days,
   items,
 }: MonthCalendarProps) {
-  const [filters, setFilters] = useState<CalendarFilters>(defaultCalendarFilters);
+  const [filters, setFilters] = useState<CalendarFilters>(
+    defaultCalendarFilters,
+  );
   const dayCells = buildCalendarDayCells({
     days,
     items,
@@ -54,7 +56,7 @@ export function MonthCalendar({
   });
 
   return (
-    <section className="rounded-[2rem] border border-neutral-200 bg-white/85 p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/50">
+    <section className="rounded-4xl border border-neutral-200 bg-white/85 p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-950/50">
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
@@ -73,32 +75,32 @@ export function MonthCalendar({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {(
-            Object.keys(filterLabels) as Array<keyof typeof filterLabels>
-          ).map((filterKey) => {
-            const isActive = filters[filterKey];
+          {(Object.keys(filterLabels) as Array<keyof typeof filterLabels>).map(
+            (filterKey) => {
+              const isActive = filters[filterKey];
 
-            return (
-              <button
-                key={filterKey}
-                type="button"
-                onClick={() =>
-                  setFilters((currentFilters) => ({
-                    ...currentFilters,
-                    [filterKey]: !currentFilters[filterKey],
-                  }))
-                }
-                className={`rounded-full border px-3 py-2 text-sm transition ${
-                  isActive
-                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950"
-                    : "border-neutral-300 bg-transparent text-neutral-600 dark:border-neutral-700 dark:text-neutral-300"
-                }`}
-                aria-pressed={isActive}
-              >
-                {filterLabels[filterKey]}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={filterKey}
+                  type="button"
+                  onClick={() =>
+                    setFilters((currentFilters) => ({
+                      ...currentFilters,
+                      [filterKey]: !currentFilters[filterKey],
+                    }))
+                  }
+                  className={`rounded-full border px-3 py-2 text-sm transition ${
+                    isActive
+                      ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950"
+                      : "border-neutral-300 bg-transparent text-neutral-600 dark:border-neutral-700 dark:text-neutral-300"
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  {filterLabels[filterKey]}
+                </button>
+              );
+            },
+          )}
         </div>
 
         <div className="grid grid-cols-7 gap-2 text-center text-xs uppercase tracking-[0.18em] text-neutral-500">
